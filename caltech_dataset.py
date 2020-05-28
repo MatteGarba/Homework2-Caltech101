@@ -1,7 +1,6 @@
 from torchvision.datasets import VisionDataset
-
 from PIL import Image
-
+from sklearn.model_selection import train_test_split
 import os
 import os.path
 import sys
@@ -20,7 +19,33 @@ class Caltech(VisionDataset):
 
         self.split = split # This defines the split you are going to use
                            # (split files are called 'train.txt' and 'test.txt')
+        
+        
+        self.mapping = dict()                   # couples class_label : Progressive_ID
+        self.id = 0                             # the progressive ID to be associated to the classes
+        self.discard = "BACKGROUND_Google"      # the class to be disscarded
+        self.data = list()                      # list of tuples: (img, id)
+        
+        if split != "train" or split != "test":
+            print("WARNING: invalid split name provided! (Using the default one: TRAIN)")
+            split = "train"
+        
+        pathToAccess = "./Caltech101/"+split+".txt"
+        with open(pathToAccess, "r") as f:
+            for line in f.readlines():
+                
+                class_label = (line.split("/"))[0]          # add the class to the mapping if it's missing
+                if class_label != self.discard:             # remove the background
+                    if class_label not in self.mapping:
+                        self.mapping[class_label] = self.id
+                        self.id = self.id + 1
 
+                    ID = self.mapping[class_label]              # extract the id of the class
+                    img = pil_loader(root+"/"+line[:-1])        # load the image from the dataset
+                    tupl = (img, ID)
+                    self.data.append(tupl)                      # append the couple to the dataset
+                
+        
         '''
         - Here you should implement the logic for reading the splits files and accessing elements
         - If the RAM size allows it, it is faster to store all data in memory
@@ -40,7 +65,7 @@ class Caltech(VisionDataset):
             tuple: (sample, target) where target is class_index of the target class.
         '''
 
-        image, label = ... # Provide a way to access image and label via index
+        image, label = self.data[index] # Provide a way to access image and label via index
                            # Image should be a PIL Image
                            # label can be int
 
@@ -55,5 +80,5 @@ class Caltech(VisionDataset):
         The __len__ method returns the length of the dataset
         It is mandatory, as this is used by several other components
         '''
-        length = ... # Provide a way to get the length (number of elements) of the dataset
+        length = len(self.data) # Provide a way to get the length (number of elements) of the dataset
         return length
