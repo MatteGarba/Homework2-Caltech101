@@ -82,3 +82,11 @@ class Caltech(VisionDataset):
         '''
         length = len(self.data) # Provide a way to get the length (number of elements) of the dataset
         return length
+    
+    def stratified_sampling(self, train_size=0.5):
+        ind = [i for i in range(len(self.data))]    # list of indexes of the tuples (img, id) where id is the numeric corresp of the class label
+        IDs = list()                                # extract the list of ids in order to stratify over it (maintain the proportions)
+        for t in self.data:
+            IDs.append(t[1])
+        stratified_train_ind, stratified_val_ind = train_test_split(ind, train_size=train_size, stratify=IDs) # stratified sampling
+        return stratified_train_ind, stratified_val_ind
