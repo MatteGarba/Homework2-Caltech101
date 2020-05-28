@@ -26,9 +26,6 @@ class Caltech(VisionDataset):
         self.discard = "BACKGROUND_Google"      # the class to be disscarded
         self.data = list()                      # list of tuples: (img, id)
         
-        print("Input split: " + split)
-        print(split != 'train')
-        print(split != 'test')
         if split != 'train' and split != 'test':
             print("WARNING: invalid split name provided! (Using the default one: TRAIN)")
             split = "train"
